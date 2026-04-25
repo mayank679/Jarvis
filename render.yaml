@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: jarvis-web
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn web_app:app
+    envVars:
+      - key: GROQ_API_KEY
+        fromEnvVar: GROQ_API_KEY
+      - key: GEMINI_API_KEY
+        fromEnvVar: GEMINI_API_KEY
