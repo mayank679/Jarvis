@@ -168,15 +168,15 @@ if (typeof eel === 'undefined') {
             var checkReady = setInterval(function() {
                 if (typeof $ !== 'undefined' && window.eel._exposed_functions['hideLoader']) {
                     clearInterval(checkReady);
-                    console.log("Scripts ready. Waiting 3 seconds before showing auth screen...");
+                    console.log("Scripts ready. Waiting 6 seconds before showing auth screen...");
                     setTimeout(function() {
                         // Show the auth/password screen (hideLoader hides the spinner and shows FaceAuth card)
                         window.eel._exposed_functions['hideLoader']();
-                    }, 3000);
+                    }, 6000);
                 }
             }, 200);
 
-            // Safety: force show auth after 4s no matter what
+            // Safety: force show auth after 8s no matter what
             setTimeout(function() {
                 clearInterval(checkReady);
                 // If we still haven't moved past loader, force it
@@ -186,7 +186,7 @@ if (typeof eel === 'undefined') {
                     if (loader) loader.hidden = true;
                     if (faceAuth) faceAuth.hidden = false;
                 }
-            }, 4000);
+            }, 8000);
         }
     };
     

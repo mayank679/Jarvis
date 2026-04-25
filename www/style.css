@@ -401,9 +401,10 @@ canvas {
     #TextInput {
         margin: 0px 10%;
     }
-    .svg-frame, svg {
-        width: 350px;
-        height: 350px;
+    #Loader {
+        zoom: 0.8;
+        -moz-transform: scale(0.8);
+        -moz-transform-origin: top center;
     }
     .square {
         width: 350px;
@@ -419,9 +420,14 @@ canvas {
         margin: 0px 5%;
         padding: 5px 10px;
     }
-    .svg-frame, svg {
-        width: 300px;
-        height: 300px;
+    #Loader {
+        zoom: 0.7;
+        -moz-transform: scale(0.7);
+        -moz-transform-origin: top center;
+    }
+    lottie-player {
+        width: 250px !important;
+        height: 250px !important;
     }
     .square {
         width: 300px;
@@ -452,9 +458,14 @@ canvas {
         margin: 0px 2%;
         flex-wrap: nowrap;
     }
-    .svg-frame, svg {
-        width: 250px;
-        height: 250px;
+    #Loader {
+        zoom: 0.55;
+        -moz-transform: scale(0.55);
+        -moz-transform-origin: top center;
+    }
+    lottie-player {
+        width: 200px !important;
+        height: 200px !important;
     }
     .square {
         width: 250px;

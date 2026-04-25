@@ -22,8 +22,8 @@ def start():
         except Exception as e:
             print(f"[ADB] Could not start device.bat: {e} — phone features will be unavailable.")
         
-        # Add a 3 second delay so the UI shows 'Initializing...' before the auth screen
-        time.sleep(3)
+        # Add a 6 second delay so the UI shows 'Initializing...' before the auth screen
+        time.sleep(6)
         eel.hideLoader()
         speak("Authentication Required")
 
