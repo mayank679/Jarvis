@@ -42,12 +42,24 @@ $(document).ready(function () {
         });
     } catch(e) { console.warn('textillate siri-message not available:', e); }
 
+    function openChatBox() {
+        try {
+            let chatElement = document.getElementById('offcanvasScrolling');
+            if (chatElement) {
+                let chatOffcanvas = bootstrap.Offcanvas.getInstance(chatElement);
+                if (!chatOffcanvas) chatOffcanvas = new bootstrap.Offcanvas(chatElement);
+                chatOffcanvas.show();
+            }
+        } catch(e) {}
+    }
+
     // mic button click event
 
     $("#MicBtn").click(function () { 
         eel.playAssistantSound()
         $("#Oval").attr("hidden", true);
         $("#SiriWave").attr("hidden", false);
+        openChatBox();
         eel.allCommands()()
     });
 
@@ -59,6 +71,7 @@ $(document).ready(function () {
             eel.playAssistantSound()
             $("#Oval").attr("hidden", true);
             $("#SiriWave").attr("hidden", false);
+            openChatBox();
             eel.allCommands()()
         }
     }
@@ -73,14 +86,7 @@ $(document).ready(function () {
             $("#SiriWave").attr("hidden", false);
             
             // Open the chat panel so the user can see responses
-            try {
-                let chatElement = document.getElementById('offcanvasScrolling');
-                if (chatElement) {
-                    let chatOffcanvas = bootstrap.Offcanvas.getInstance(chatElement);
-                    if (!chatOffcanvas) chatOffcanvas = new bootstrap.Offcanvas(chatElement);
-                    chatOffcanvas.show();
-                }
-            } catch(e) {}
+            openChatBox();
 
             // FIX: must call allCommands(message)() — the second () invokes the async fetch
             eel.allCommands(message)()
