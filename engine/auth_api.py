@@ -6,9 +6,9 @@ import bcrypt
 import time
 
 # --- Password Authentication Setup ---
-DEFAULT_PASSWORD = b"admin"
+DEFAULT_PASSWORD = b"jarvis"
 # In a real application, you would load this from a database. 
-# Here we just generate a hash of 'admin' to validate against.
+# Here we just generate a hash of 'jarvis' to validate against.
 PASSWORD_HASH = bcrypt.hashpw(DEFAULT_PASSWORD, bcrypt.gensalt())
 
 failed_attempts = 0
