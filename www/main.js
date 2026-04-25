@@ -59,7 +59,6 @@ $(document).ready(function () {
         eel.playAssistantSound()
         $("#Oval").attr("hidden", true);
         $("#SiriWave").attr("hidden", false);
-        openChatBox();
         eel.allCommands()()
     });
 
@@ -71,7 +70,6 @@ $(document).ready(function () {
             eel.playAssistantSound()
             $("#Oval").attr("hidden", true);
             $("#SiriWave").attr("hidden", false);
-            openChatBox();
             eel.allCommands()()
         }
     }
@@ -85,9 +83,6 @@ $(document).ready(function () {
             $("#Oval").attr("hidden", true);
             $("#SiriWave").attr("hidden", false);
             
-            // Open the chat panel so the user can see responses
-            openChatBox();
-
             // FIX: must call allCommands(message)() — the second () invokes the async fetch
             eel.allCommands(message)()
             $("#chatbox").val("")

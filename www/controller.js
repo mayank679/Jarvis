@@ -181,16 +181,6 @@ $(document).ready(function () {
         // Load conversations once authenticated
         window.loadConversations();
         
-        // Auto-open chat panel on startup
-        try {
-            let chatElement = document.getElementById('offcanvasScrolling');
-            if (chatElement) {
-                let chatOffcanvas = bootstrap.Offcanvas.getInstance(chatElement);
-                if (!chatOffcanvas) chatOffcanvas = new bootstrap.Offcanvas(chatElement);
-                chatOffcanvas.show();
-            }
-        } catch(e) {}
-
         // Optionally load the most recent conversation if it exists
         eel.get_conversations()(function(response) {
             if (response && response.success && response.data.length > 0) {
