@@ -258,6 +258,8 @@ body.light-mode .glass-hud .text-light {
   width: auto;
   color: white;
   background-color: #0dcaf014;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .sender_message{
@@ -267,6 +269,8 @@ body.light-mode .glass-hud .text-light {
   width: auto;
   color: white;
   background-color: #0045ff;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .width-size{
   max-width: 80%;
@@ -393,9 +397,27 @@ canvas {
     max-width: 100%;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 1024px) {
     #TextInput {
         margin: 0px 10%;
+    }
+    .svg-frame, svg {
+        width: 350px;
+        height: 350px;
+    }
+    .square {
+        width: 350px;
+        height: 350px;
+    }
+    .siri-message {
+        font-size: 24px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #TextInput {
+        margin: 0px 5%;
+        padding: 5px 10px;
     }
     .svg-frame, svg {
         width: 300px;
@@ -405,11 +427,30 @@ canvas {
         width: 300px;
         height: 300px;
     }
+    .glass-hud {
+        width: 220px;
+        transform: scale(0.8);
+    }
+    .siri-message {
+        font-size: 1.5rem !important;
+    }
+    .input-field {
+        font-size: 16px;
+    }
+    .glow-on-hover {
+        width: 32px;
+        height: 32px;
+        margin-left: 8px;
+    }
+    .offcanvas {
+        width: 350px !important; /* Adjust offcanvas for tablets */
+    }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 480px) {
     #TextInput {
-        margin: 0px 5%;
+        margin: 0px 2%;
+        flex-wrap: nowrap;
     }
     .svg-frame, svg {
         width: 250px;
@@ -420,21 +461,33 @@ canvas {
         height: 250px;
     }
     #FaceAuth {
-        width: 90% !important;
+        width: 95% !important;
+        margin-top: 60px !important;
     }
     .glass-hud {
-        width: 200px;
+        width: 180px;
         transform: scale(0.65);
+        left: -10px !important; /* adjust for scale */
     }
     .siri-message {
         font-size: 1.2rem !important;
     }
     .input-field {
         font-size: 14px;
+        width: 100%;
     }
     .glow-on-hover {
         width: 30px;
         height: 30px;
         margin-left: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .offcanvas {
+        width: 100% !important; /* Full width offcanvas on mobile */
+    }
+    .width-size {
+        max-width: 90%;
     }
 }
