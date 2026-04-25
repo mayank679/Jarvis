@@ -54,11 +54,19 @@ if (typeof eel === 'undefined') {
         init: function() {
             return function() { 
                 console.log("Eel init (mock)");
-                // Auto-skip loader for web demo
+                // Auto-skip loader and auth for web demo
                 setTimeout(() => {
-                    if (window.eel._exposed_functions['hideLoader']) {
-                        window.eel._exposed_functions['hideLoader']();
+                    if (window.eel._exposed_functions['DisplayMessage']) {
+                        window.eel._exposed_functions['DisplayMessage']("Welcome back, Sir. Jarvis is online.");
                     }
+                    
+                    // After showing welcome for a bit, go to main screen
+                    setTimeout(() => {
+                        if (window.eel._exposed_functions['hideStart']) {
+                            window.eel._exposed_functions['hideStart']();
+                        }
+                    }, 1500);
+                    
                 }, 1000);
             };
         },
