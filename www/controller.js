@@ -10,7 +10,12 @@ $(document).ready(function () {
         $(".siri-message .texts li").text(message);
 
         // Re-initialize textillate so it splits into chars again
-        $('.siri-message').textillate('start');
+        try {
+            $('.siri-message').textillate('start');
+        } catch(e) {
+            // Fallback: just show the text directly
+            $(".siri-message").text(message);
+        }
     }
 
     // Display hood
