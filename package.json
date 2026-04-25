@@ -1,0 +1,13 @@
+{
+  "name": "jarvis",
+  "version": "1.0.0",
+  "description": "Jarvis AI Assistant",
+  "main": "main.py",
+  "scripts": {
+    "start": "python main.py",
+    "install-deps": "pip install -r requirements.txt"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

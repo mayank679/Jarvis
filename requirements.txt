@@ -1,0 +1,12 @@
+eel
+python-dotenv
+google-generativeai
+groq
+pyttsx3
+SpeechRecognition
+playsound==1.2.2
+pyaudio
+pyautogui
+pywhatkit
+pvporcupine
+pywinauto
