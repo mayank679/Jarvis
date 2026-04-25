@@ -6,4 +6,6 @@ services:
     startCommand: gunicorn web_app:app
     envVars:
       - key: GROQ_API_KEY
+        value: "paste_groq_key_here"
       - key: GEMINI_API_KEY
+        value: "paste_gemini_key_here"
