@@ -1,35 +1,38 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 import os
 from dotenv import load_dotenv
-import sqlite3
-from engine.features import geminai, analyze_image
-from engine.command import speak
 
 load_dotenv()
 
 app = Flask(__name__, static_folder='www', static_url_path='')
 
-# Mock eel.expose for web
 @app.route('/')
 def index():
     return send_from_directory('www', 'index.html')
 
+# Serve any static file from www/
+@app.route('/<path:filename>')
+def static_files(filename):
+    return send_from_directory('www', filename)
+
+# Mock eel.js so the browser doesn't 404
+@app.route('/eel.js')
+def eel_js():
+    return 'console.log("eel.js mock loaded");', 200, {'Content-Type': 'application/javascript'}
+
 @app.route('/api/allCommands', methods=['POST'])
 def all_commands():
     data = request.json
-    query = data.get('query')
-    # In web mode, we just return the LLM response text
-    # We need to modify geminai to return text instead of just speaking
-    from engine.config import ASSISTANT_NAME, LLM_KEY
-    from groq import Groq
-    from engine.helper import markdown_to_text
+    query = data.get('query', '')
+
+    groq_key = os.getenv('GROQ_API_KEY', '')
     
     try:
-        query = query.replace(ASSISTANT_NAME, "")
-        client = Groq(api_key=LLM_KEY)
+        from groq import Groq
+        client = Groq(api_key=groq_key)
         chat_completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "You are Jarvis, a helpful AI assistant. Keep responses concise."},
+                {"role": "system", "content": "You are Jarvis, a helpful AI assistant. Keep responses concise and helpful."},
                 {"role": "user", "content": query}
             ],
             model="llama-3.3-70b-versatile",
@@ -41,10 +44,9 @@ def all_commands():
 
 @app.route('/api/get_system_stats')
 def system_stats():
-    # Mock stats for web demo
     return jsonify({
-        "cpu": 15.5,
-        "battery": 85,
+        "cpu": 12.5,
+        "battery": 100,
         "plugged": True
     })
 
