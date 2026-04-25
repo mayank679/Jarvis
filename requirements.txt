@@ -12,3 +12,6 @@ pyautogui
 pywhatkit
 pvporcupine
 pywinauto
+opencv-python-headless
+numpy
+bcrypt
