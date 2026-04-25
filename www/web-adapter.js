@@ -176,7 +176,6 @@ if (typeof eel === 'undefined') {
             };
         },
 
-        // ─── Auth ────────────────────────────────────────────────────
         password_login: function(pass) {
             return async function(callback) {
                 try {
@@ -186,6 +185,11 @@ if (typeof eel === 'undefined') {
                         body: JSON.stringify({password: pass})
                     });
                     const data = await res.json();
+                    if ('speechSynthesis' in window && data.message) {
+                        window.speechSynthesis.speak(new SpeechSynthesisUtterance(data.message));
+                    } else if ('speechSynthesis' in window && data.success) {
+                        window.speechSynthesis.speak(new SpeechSynthesisUtterance("Login successful"));
+                    }
                     if (callback) callback(data);
                 } catch(e) {
                     // Fallback: accept any password for demo
@@ -204,10 +208,24 @@ if (typeof eel === 'undefined') {
         },
 
         face_login: function(dataURL) {
-            return function(callback) {
-                // Face login not available on web — always return false so 
-                // user falls back to password login
-                if (callback) callback({success: false, message: "Face login not available on web."});
+            return async function(callback) {
+                try {
+                    const res = await fetch('/api/face_login', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({image: dataURL})
+                    });
+                    const data = await res.json();
+                    if ('speechSynthesis' in window && data.message) {
+                        window.speechSynthesis.speak(new SpeechSynthesisUtterance(data.message));
+                    }
+                    if (callback) callback(data);
+                } catch(e) {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.speak(new SpeechSynthesisUtterance("Face login not available."));
+                    }
+                    if (callback) callback({success: false, message: "Face login not available or error occurred."});
+                }
             };
         },
 
@@ -252,25 +270,43 @@ if (typeof eel === 'undefined') {
             var checkReady = setInterval(function() {
                 if (typeof $ !== 'undefined' && window.eel._exposed_functions['hideLoader']) {
                     clearInterval(checkReady);
-                    console.log("Scripts ready. Waiting 6 seconds before showing auth screen...");
-                    setTimeout(function() {
-                        // Show the auth/password screen (hideLoader hides the spinner and shows FaceAuth card)
-                        window.eel._exposed_functions['hideLoader']();
-                    }, 6000);
+                    
+                    var startBtn = document.getElementById('WebStartBtn');
+                    var wishMsg = document.getElementById('WishMessage');
+                    var loader = document.getElementById('Loader');
+                    
+                    if (startBtn && wishMsg && loader) {
+                        wishMsg.hidden = true;
+                        loader.hidden = true;
+                        startBtn.style.display = 'block';
+                        
+                        startBtn.addEventListener('click', function() {
+                            startBtn.style.display = 'none';
+                            wishMsg.hidden = false;
+                            loader.hidden = false;
+                            
+                            // Speak initial greeting to unlock audio context
+                            if ('speechSynthesis' in window) {
+                                const initSpeech = new SpeechSynthesisUtterance("Initializing System.");
+                                window.speechSynthesis.speak(initSpeech);
+                            }
+                            
+                            setTimeout(function() {
+                                window.eel._exposed_functions['hideLoader']();
+                                if ('speechSynthesis' in window) {
+                                    const authSpeech = new SpeechSynthesisUtterance("Authentication Required.");
+                                    window.speechSynthesis.speak(authSpeech);
+                                }
+                            }, 6000);
+                        });
+                    } else {
+                        // Fallback if elements not found
+                        setTimeout(function() {
+                            window.eel._exposed_functions['hideLoader']();
+                        }, 6000);
+                    }
                 }
             }, 200);
-
-            // Safety: force show auth after 8s no matter what
-            setTimeout(function() {
-                clearInterval(checkReady);
-                // If we still haven't moved past loader, force it
-                var loader = document.getElementById('Loader');
-                var faceAuth = document.getElementById('FaceAuth');
-                if (loader && !loader.hidden) {
-                    if (loader) loader.hidden = true;
-                    if (faceAuth) faceAuth.hidden = false;
-                }
-            }, 8000);
         }
     };
     

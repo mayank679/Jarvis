@@ -60,6 +60,20 @@ def password_login():
         return jsonify({"success": True})
     return jsonify({"success": False, "message": "Incorrect password. Try 'jarvis'"})
 
+@app.route('/api/face_login', methods=['POST'])
+def face_login_api():
+    try:
+        data = request.json
+        image_data = data.get('image', '')
+        if not image_data:
+            return jsonify({"success": False, "message": "No image data provided"})
+            
+        from engine.auth_api import face_login
+        result = face_login(image_data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Server error: {str(e)}"})
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
