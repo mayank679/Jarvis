@@ -10,10 +10,66 @@ if (typeof eel === 'undefined') {
             this._exposed_functions[name || func.name] = func;
         },
         
+        // ─── Voice Pre-loading ───────────────────────────────────────
+        _synthVoices: [],
+        
         // ─── AI Chat ────────────────────────────────────────────────
         allCommands: function(message) {
-            let query = message;
             return async function(callback) {
+                let query = message;
+                
+                // If message is empty or 1 (default from python), trigger microphone
+                if (!query || query === 1) {
+                    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                        console.error("Microphone access requires HTTPS.");
+                        if (window.eel._exposed_functions['DisplayMessage']) {
+                            window.eel._exposed_functions['DisplayMessage']("Microphone requires HTTPS.");
+                            setTimeout(() => { if (window.eel._exposed_functions['ShowHood']) window.eel._exposed_functions['ShowHood'](); }, 3000);
+                        }
+                        return;
+                    }
+                    
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    if (!SpeechRecognition) {
+                        console.error("Speech Recognition API not supported in this browser.");
+                        if (window.eel._exposed_functions['DisplayMessage']) {
+                            window.eel._exposed_functions['DisplayMessage']("Speech Recognition not supported in this browser.");
+                            setTimeout(() => { if (window.eel._exposed_functions['ShowHood']) window.eel._exposed_functions['ShowHood'](); }, 3000);
+                        }
+                        return;
+                    }
+                    
+                    try {
+                        const recognition = new SpeechRecognition();
+                        recognition.lang = 'en-US';
+                        recognition.interimResults = false;
+                        recognition.maxAlternatives = 1;
+                        
+                        if (window.eel._exposed_functions['DisplayMessage']) {
+                            window.eel._exposed_functions['DisplayMessage']("Listening...");
+                        }
+                        
+                        console.log("Starting speech recognition...");
+                        let recognizedText = await new Promise((resolve, reject) => {
+                            recognition.onresult = (event) => resolve(event.results[0][0].transcript);
+                            recognition.onerror = (event) => reject(event.error);
+                            recognition.onnomatch = () => reject('no-match');
+                            recognition.start();
+                        });
+                        
+                        console.log("Recognized:", recognizedText);
+                        query = recognizedText;
+                    } catch (err) {
+                        console.error("Microphone error:", err);
+                        if (window.eel._exposed_functions['DisplayMessage']) {
+                            let errMsg = err === 'not-allowed' ? "Microphone permission denied." : "Could not hear you. Please try again.";
+                            window.eel._exposed_functions['DisplayMessage'](errMsg);
+                            setTimeout(() => { if (window.eel._exposed_functions['ShowHood']) window.eel._exposed_functions['ShowHood'](); }, 3000);
+                        }
+                        return;
+                    }
+                }
+
                 try {
                     // Show a "thinking…" message while waiting
                     if (window.eel._exposed_functions['DisplayMessage']) {
@@ -37,16 +93,44 @@ if (typeof eel === 'undefined') {
                         if (window.eel._exposed_functions['receiverText']) {
                             window.eel._exposed_functions['receiverText'](data.response);
                         }
-                        // Delay returning to the idle orb based on reading speed 
-                        // (~200 words per minute -> ~300ms per word)
-                        let words = (data.response || "").split(/\s+/).length;
-                        let delayMs = Math.max(3000, words * 300);
                         
-                        setTimeout(() => {
-                            if (window.eel._exposed_functions['ShowHood']) {
-                                window.eel._exposed_functions['ShowHood']();
+                        // Web Speech API for TTS (Text-to-Speech)
+                        if ('speechSynthesis' in window) {
+                            // Ensure voices are loaded
+                            if (window.eel._synthVoices.length === 0) {
+                                window.eel._synthVoices = window.speechSynthesis.getVoices();
                             }
-                        }, delayMs);
+                            
+                            const utterance = new SpeechSynthesisUtterance(data.response);
+                            utterance.lang = 'en-US';
+                            
+                            // Calculate a fallback delay just in case speech fails to fire
+                            let words = (data.response || "").split(/\s+/).length;
+                            let delayMs = Math.max(3000, words * 300);
+                            let fallbackTimer = setTimeout(() => {
+                                if (window.eel._exposed_functions['ShowHood']) window.eel._exposed_functions['ShowHood']();
+                            }, delayMs + 2000);
+                            
+                            utterance.onend = function() {
+                                clearTimeout(fallbackTimer);
+                                if (window.eel._exposed_functions['ShowHood']) window.eel._exposed_functions['ShowHood']();
+                            };
+                            
+                            utterance.onerror = function(e) {
+                                console.error("Speech synthesis error", e);
+                            };
+                            
+                            window.speechSynthesis.speak(utterance);
+                        } else {
+                            // Fallback to time-based delay if TTS not supported
+                            let words = (data.response || "").split(/\s+/).length;
+                            let delayMs = Math.max(3000, words * 300);
+                            setTimeout(() => {
+                                if (window.eel._exposed_functions['ShowHood']) {
+                                    window.eel._exposed_functions['ShowHood']();
+                                }
+                            }, delayMs);
+                        }
                         
                         if (callback) callback(data);
                     } else {
@@ -189,6 +273,19 @@ if (typeof eel === 'undefined') {
             }, 8000);
         }
     };
+    
+    // Inject the mock eel into the global scope
+    window.eel = Object.assign(window.eel, window.eel._exposed_functions);
+    
+    // Attempt to preload voices
+    if ('speechSynthesis' in window) {
+        window.eel._synthVoices = window.speechSynthesis.getVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = function() {
+                window.eel._synthVoices = window.speechSynthesis.getVoices();
+            };
+        }
+    }
     
     // Polyfill expose
     window.eel.expose = function(func, name) {
