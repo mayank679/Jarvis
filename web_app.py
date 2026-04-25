@@ -50,6 +50,16 @@ def system_stats():
         "plugged": True
     })
 
+@app.route('/api/password_login', methods=['POST'])
+def password_login():
+    data = request.json
+    entered = data.get('password', '')
+    # Default web password is 'jarvis' — set WEB_PASSWORD env var on Render to change it
+    correct = os.getenv('WEB_PASSWORD', 'jarvis')
+    if entered == correct:
+        return jsonify({"success": True})
+    return jsonify({"success": False, "message": "Incorrect password. Try 'jarvis'"})
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)

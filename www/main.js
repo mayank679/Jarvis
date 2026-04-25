@@ -64,18 +64,29 @@ $(document).ready(function () {
     }
     document.addEventListener('keyup', doc_keyUp, false);
 
-    // to play assisatnt 
+    // to play assistant 
     function PlayAssistant(message) {
 
         if (message != "") {
-
+            // Show the SiriWave while processing
             $("#Oval").attr("hidden", true);
             $("#SiriWave").attr("hidden", false);
-            eel.allCommands(message);
+            
+            // Open the chat panel so the user can see responses
+            try {
+                let chatElement = document.getElementById('offcanvasScrolling');
+                if (chatElement) {
+                    let chatOffcanvas = bootstrap.Offcanvas.getInstance(chatElement);
+                    if (!chatOffcanvas) chatOffcanvas = new bootstrap.Offcanvas(chatElement);
+                    chatOffcanvas.show();
+                }
+            } catch(e) {}
+
+            // FIX: must call allCommands(message)() — the second () invokes the async fetch
+            eel.allCommands(message)()
             $("#chatbox").val("")
             $("#MicBtn").attr('hidden', false);
             $("#SendBtn").attr('hidden', true);
-
         }
 
     }
