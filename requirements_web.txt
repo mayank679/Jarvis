@@ -1,0 +1,7 @@
+flask
+gunicorn
+eel
+python-dotenv
+google-generativeai
+groq
+wikipedia
