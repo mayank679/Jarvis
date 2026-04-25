@@ -4,6 +4,7 @@ if (typeof eel === 'undefined') {
     
     window.eel = {
         _exposed_functions: {},
+        _initDone: false,
         
         expose: function(func, name) {
             this._exposed_functions[name || func.name] = func;
@@ -13,27 +14,30 @@ if (typeof eel === 'undefined') {
         allCommands: function(message) {
             let query = message;
             return async function(callback) {
-                const response = await fetch('/api/allCommands', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({query: query})
-                });
-                const data = await response.json();
-                if (data.success) {
-                    // Call exposed functions like a real Eel server would
-                    if (window.eel._exposed_functions['senderText']) {
-                        window.eel._exposed_functions['senderText'](query);
+                try {
+                    const response = await fetch('/api/allCommands', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({query: query})
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        if (window.eel._exposed_functions['senderText']) {
+                            window.eel._exposed_functions['senderText'](query);
+                        }
+                        if (window.eel._exposed_functions['DisplayMessage']) {
+                            window.eel._exposed_functions['DisplayMessage'](data.response);
+                        }
+                        if (window.eel._exposed_functions['receiverText']) {
+                            window.eel._exposed_functions['receiverText'](data.response);
+                        }
+                        if (window.eel._exposed_functions['ShowHood']) {
+                            window.eel._exposed_functions['ShowHood']();
+                        }
+                        if (callback) callback(data);
                     }
-                    if (window.eel._exposed_functions['DisplayMessage']) {
-                        window.eel._exposed_functions['DisplayMessage'](data.response);
-                    }
-                    if (window.eel._exposed_functions['receiverText']) {
-                        window.eel._exposed_functions['receiverText'](data.response);
-                    }
-                    if (window.eel._exposed_functions['ShowHood']) {
-                        window.eel._exposed_functions['ShowHood']();
-                    }
-                    if (callback) callback(data);
+                } catch(e) {
+                    console.error("allCommands error:", e);
                 }
             };
         },
@@ -44,57 +48,126 @@ if (typeof eel === 'undefined') {
         
         get_system_stats: function() {
             return async function(callback) {
-                const res = await fetch('/api/get_system_stats');
-                const data = await res.json();
-                if (callback) callback(data);
-                return data;
+                try {
+                    const res = await fetch('/api/get_system_stats');
+                    const data = await res.json();
+                    if (callback) callback(data);
+                    return data;
+                } catch(e) {
+                    console.error("get_system_stats error:", e);
+                    return {cpu: 0, battery: 100, plugged: true};
+                }
             };
         },
         
+        // This is called by main.js at startup
         init: function() {
             return function() { 
-                console.log("Eel init (mock)");
-                // Auto-skip loader and auth for web demo
-                setTimeout(() => {
-                    if (window.eel._exposed_functions['DisplayMessage']) {
-                        window.eel._exposed_functions['DisplayMessage']("Welcome back, Sir. Jarvis is online.");
-                    }
-                    
-                    // After showing welcome for a bit, go to main screen
-                    setTimeout(() => {
-                        if (window.eel._exposed_functions['hideStart']) {
-                            window.eel._exposed_functions['hideStart']();
-                        }
-                    }, 1500);
-                    
-                }, 1000);
+                console.log("Eel init (mock) - will auto-skip to main UI");
+                window.eel._initDone = true;
+                // Don't do anything here - we handle it in _autoSkip below
             };
         },
 
         on_auth_success: function() {
             return function() {
-                if (window.eel._exposed_functions['hideFaceAuth']) window.eel._exposed_functions['hideFaceAuth']();
-                if (window.eel._exposed_functions['hideFaceAuthSuccess']) window.eel._exposed_functions['hideFaceAuthSuccess']();
-                if (window.eel._exposed_functions['hideStart']) window.eel._exposed_functions['hideStart']();
+                // no-op in web mode
             };
         },
 
         password_login: function(pass) {
             return function(callback) {
-                // Mock login for demo
-                callback({success: true});
+                if (callback) callback({success: true});
             };
         },
 
         get_conversations: function() {
             return function(callback) {
-                callback({success: true, data: []});
+                if (callback) callback({success: true, data: []});
             };
+        },
+
+        get_messages: function(id) {
+            return function(callback) {
+                if (callback) callback({success: true, data: []});
+            };
+        },
+
+        create_conversation: function(title) {
+            return function(callback) {
+                if (callback) callback({success: true, conversation_id: 1});
+            };
+        },
+
+        save_message: function(conv_id, user_msg, bot_msg) {
+            return function() {};
+        },
+
+        delete_conversation: function(id) {
+            return function(callback) {
+                if (callback) callback({success: true});
+            };
+        },
+
+        set_system_volume: function() { return function() {}; },
+        set_system_brightness: function() { return function() {}; },
+        set_voice_rate: function() { return function() {}; },
+        set_voice_gender: function() { return function() {}; },
+        analyze_image: function() { return function() {}; },
+        face_login: function() { return function(cb) { if(cb) cb({success:false}); }; },
+
+        // Auto-skip to main UI after all scripts have loaded
+        _autoSkip: function() {
+            // Wait for jQuery and controller.js to be ready
+            var checkReady = setInterval(function() {
+                // Check if jQuery is loaded and hideStart is registered
+                if (typeof $ !== 'undefined' && window.eel._exposed_functions['hideStart']) {
+                    clearInterval(checkReady);
+                    console.log("All scripts loaded. Skipping to main UI...");
+                    
+                    // Hide the Start section directly
+                    $("#Start").attr("hidden", true);
+                    $("#Oval").attr("hidden", false);
+                    $("#Oval").addClass("animate__animated animate__zoomIn");
+                    
+                    // Show welcome message
+                    if (window.eel._exposed_functions['DisplayMessage']) {
+                        window.eel._exposed_functions['DisplayMessage']("Welcome! Jarvis Web is online.");
+                    }
+                    
+                    // Show HUD
+                    setTimeout(function() {
+                        $("#system-hud").fadeIn('slow');
+                    }, 500);
+                }
+            }, 200); // Check every 200ms
+
+            // Safety timeout - force skip after 5 seconds no matter what
+            setTimeout(function() {
+                clearInterval(checkReady);
+                var startEl = document.getElementById('Start');
+                var ovalEl = document.getElementById('Oval');
+                if (startEl && !startEl.hidden) {
+                    console.log("Force-skipping initialization (safety timeout)");
+                    startEl.hidden = true;
+                    if (ovalEl) ovalEl.hidden = false;
+                }
+            }, 5000);
         }
     };
     
-    // Polyfill expose
+    // Polyfill expose (ensure it's always available)
     window.eel.expose = function(func, name) {
         window.eel._exposed_functions[name || func.name] = func;
     };
+
+    // Kick off auto-skip when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            window.eel._autoSkip();
+        });
+    } else {
+        // DOM already loaded
+        window.eel._autoSkip();
+    }
 }
