@@ -86,21 +86,24 @@ $(document).ready(function () {
         });
     }
 
-    document.getElementById("newChatBtn").addEventListener("click", function() {
-        current_conversation_id = null;
-        document.getElementById("chat-canvas-body").innerHTML = "";
-        window.loadConversations();
-        
-        // Hide conversations sidebar and open chat canvas
-        let convElement = document.getElementById('offcanvasConversations');
-        let convOffcanvas = bootstrap.Offcanvas.getInstance(convElement);
-        if (convOffcanvas) convOffcanvas.hide();
-        
-        let chatElement = document.getElementById('offcanvasScrolling');
-        let chatOffcanvas = bootstrap.Offcanvas.getInstance(chatElement);
-        if (!chatOffcanvas) chatOffcanvas = new bootstrap.Offcanvas(chatElement);
-        chatOffcanvas.show();
-    });
+    let newChatBtn = document.getElementById("newChatBtn");
+    if (newChatBtn) {
+        newChatBtn.addEventListener("click", function() {
+            current_conversation_id = null;
+            document.getElementById("chat-canvas-body").innerHTML = "";
+            window.loadConversations();
+            
+            // Hide conversations sidebar and open chat canvas
+            let convElement = document.getElementById('offcanvasConversations');
+            let convOffcanvas = bootstrap.Offcanvas.getInstance(convElement);
+            if (convOffcanvas) convOffcanvas.hide();
+            
+            let chatElement = document.getElementById('offcanvasScrolling');
+            let chatOffcanvas = bootstrap.Offcanvas.getInstance(chatElement);
+            if (!chatOffcanvas) chatOffcanvas = new bootstrap.Offcanvas(chatElement);
+            chatOffcanvas.show();
+        });
+    }
 
     eel.expose(senderText)
     function senderText(message) {

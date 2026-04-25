@@ -166,9 +166,11 @@ $(document).ready(function () {
     // Start Live System HUD Logic
     function updateHUDClock() {
         const now = new Date();
-        document.getElementById('hud-time').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+        let timeEl = document.getElementById('hud-time');
+        let dateEl = document.getElementById('hud-date');
+        if (timeEl) timeEl.innerText = now.toLocaleTimeString('en-US', { hour12: false });
         const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-        document.getElementById('hud-date').innerText = now.toLocaleDateString('en-US', options);
+        if (dateEl) dateEl.innerText = now.toLocaleDateString('en-US', options);
     }
     
     // Call telemetry via eel
