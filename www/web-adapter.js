@@ -37,9 +37,17 @@ if (typeof eel === 'undefined') {
                         if (window.eel._exposed_functions['receiverText']) {
                             window.eel._exposed_functions['receiverText'](data.response);
                         }
-                        if (window.eel._exposed_functions['ShowHood']) {
-                            window.eel._exposed_functions['ShowHood']();
-                        }
+                        // Delay returning to the idle orb based on reading speed 
+                        // (~200 words per minute -> ~300ms per word)
+                        let words = (data.response || "").split(/\s+/).length;
+                        let delayMs = Math.max(3000, words * 300);
+                        
+                        setTimeout(() => {
+                            if (window.eel._exposed_functions['ShowHood']) {
+                                window.eel._exposed_functions['ShowHood']();
+                            }
+                        }, delayMs);
+                        
                         if (callback) callback(data);
                     } else {
                         if (window.eel._exposed_functions['DisplayMessage']) {

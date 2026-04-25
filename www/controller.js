@@ -6,16 +6,9 @@ $(document).ready(function () {
     // Display Speak Message
     eel.expose(DisplayMessage)
     function DisplayMessage(message) {
-        // Replace the hidden textillate <li>
-        $(".siri-message .texts li").text(message);
-
-        // Re-initialize textillate so it splits into chars again
-        try {
-            $('.siri-message').textillate('start');
-        } catch(e) {
-            // Fallback: just show the text directly
-            $(".siri-message").text(message);
-        }
+        // Direct text update works best for dynamically changing text 
+        // without breaking the DOM structure needed for the wave.
+        $("#SiriWave .siri-message").text(message);
     }
 
     // Display hood
