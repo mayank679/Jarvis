@@ -14,12 +14,16 @@ def start():
     playAssistantSound()
     @eel.expose
     def init():
+        import time
         # Start ADB connection in background (non-blocking)
         try:
             subprocess.Popen([r'device.bat'], shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             print("[ADB] Device connection started in background.")
         except Exception as e:
             print(f"[ADB] Could not start device.bat: {e} — phone features will be unavailable.")
+        
+        # Add a 3 second delay so the UI shows 'Initializing...' before the auth screen
+        time.sleep(3)
         eel.hideLoader()
         speak("Authentication Required")
 

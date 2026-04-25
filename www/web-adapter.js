@@ -160,9 +160,11 @@ if (typeof eel === 'undefined') {
             var checkReady = setInterval(function() {
                 if (typeof $ !== 'undefined' && window.eel._exposed_functions['hideLoader']) {
                     clearInterval(checkReady);
-                    console.log("Scripts ready. Showing auth screen...");
-                    // Show the auth/password screen (hideLoader hides the spinner and shows FaceAuth card)
-                    window.eel._exposed_functions['hideLoader']();
+                    console.log("Scripts ready. Waiting 3 seconds before showing auth screen...");
+                    setTimeout(function() {
+                        // Show the auth/password screen (hideLoader hides the spinner and shows FaceAuth card)
+                        window.eel._exposed_functions['hideLoader']();
+                    }, 3000);
                 }
             }, 200);
 

@@ -48,19 +48,21 @@ $(document).ready(function () {
         });
     }
 
-    window.loadMessages = function(conv_id) {
+    window.loadMessages = function(conv_id, show_canvas = true) {
         current_conversation_id = conv_id;
         window.loadConversations(); // refresh active state
         
         // Hide conversations sidebar and open chat canvas
         let convElement = document.getElementById('offcanvasConversations');
         let convOffcanvas = bootstrap.Offcanvas.getInstance(convElement);
-        if (convOffcanvas) convOffcanvas.hide();
+        if (convOffcanvas && show_canvas) convOffcanvas.hide();
         
-        let chatElement = document.getElementById('offcanvasScrolling');
-        let chatOffcanvas = bootstrap.Offcanvas.getInstance(chatElement);
-        if (!chatOffcanvas) chatOffcanvas = new bootstrap.Offcanvas(chatElement);
-        chatOffcanvas.show();
+        if (show_canvas) {
+            let chatElement = document.getElementById('offcanvasScrolling');
+            let chatOffcanvas = bootstrap.Offcanvas.getInstance(chatElement);
+            if (!chatOffcanvas) chatOffcanvas = new bootstrap.Offcanvas(chatElement);
+            chatOffcanvas.show();
+        }
         
         eel.get_messages(conv_id)(function(response) {
             if (response && response.success) {
@@ -184,7 +186,7 @@ $(document).ready(function () {
         // Optionally load the most recent conversation if it exists
         eel.get_conversations()(function(response) {
             if (response && response.success && response.data.length > 0) {
-                window.loadMessages(response.data[0].id);
+                window.loadMessages(response.data[0].id, false);
             }
         });
 
